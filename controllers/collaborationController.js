@@ -20,29 +20,28 @@ exports.createCollaboration = async (req, res) => {
     });
     await collaboration.save();
 
-    // После создания — редирект на дашборд или к коллаборации
+  
     res.redirect('/api/collaborations');
   } catch (err) {
     console.error(err);
-    res.status(500).render('create-collaboration', { error: 'Ошибка при создании' });
+    res.status(500).render('create-collaboration', { error: 'Error when creating' });
   }
 };
 
 
 exports.getAllCollaborations = async (req, res) => {
   try {
-    // Коллаборации, где пользователь — владелец
+    
     const ownedCollaborations = await Collaboration.find({
       ownerId: req.user.id,
     });
 
-    // Коллаборации, где пользователь — участник (но не владелец)
     const memberCollaborations = await Collaboration.find({
       'participants.userId': req.user.id,
-      ownerId: { $ne: req.user.id },  // не владелец
+      ownerId: { $ne: req.user.id },  
     });
 
-    // Передаём обе группы в шаблон
+    
     res.render('dashboard', {
       user: req.user,
       ownedCollaborations,
@@ -54,12 +53,12 @@ exports.getAllCollaborations = async (req, res) => {
   }
 };
 
-// Получение одной коллаборации по ID
+
 exports.getCollaboration = async (req, res) => {
   try {
     const collaboration = await Collaboration.findById(req.params.id)
       .populate('participants.userId', 'username email')
-      .populate('ownerId', 'username email'); // ← добавили это
+      .populate('ownerId', 'username email'); 
 
     if (!collaboration) {
       return res.status(404).send('Collaboration not found');
@@ -72,23 +71,6 @@ exports.getCollaboration = async (req, res) => {
   }
 };
 
-
-// Обновление описания (только владелец)
-// exports.updateDescription = async (req, res) => {
-//   const { description } = req.body;
-//   try {
-//     const collaboration = await Collaboration.findById(req.params.id);
-//     if (!collaboration) return res.status(404).json({ msg: 'Collaboration not found' });
-//     if (collaboration.ownerId.toString() !== req.user.id) {
-//       return res.status(403).json({ msg: 'Only owner can update description' });
-//     }
-//     collaboration.description = description;
-//     await collaboration.save();
-//     res.json(collaboration);
-//   } catch (err) {
-//     res.status(500).send('Server error');
-//   }
-// };
 exports.updateDescription = async (req, res) => {
   const { description } = req.body;
   try {
@@ -98,7 +80,6 @@ exports.updateDescription = async (req, res) => {
 
     if (!collaboration) return res.status(404).send('Collaboration not found');
 
-    // Если ownerId популяция, то нужно взять _id
     if (collaboration.ownerId._id.toString() !== req.user.id) {
       return res.status(403).send('Only owner can update description');
     }
@@ -106,7 +87,6 @@ exports.updateDescription = async (req, res) => {
     collaboration.description = description;
     await collaboration.save();
 
-    // Отрендерить страницу заново с обновленными данными
     res.render('collaboration', { collaboration, user: req.user });
   } catch (err) {
     console.error(err);
@@ -114,8 +94,6 @@ exports.updateDescription = async (req, res) => {
   }
 };
 
-
-// Удаление коллаборации (только владелец)
 
 exports.deleteCollaboration = async (req, res) => {
   try {
@@ -146,28 +124,6 @@ exports.deleteCollaboration = async (req, res) => {
   }
 };
 
-// // Пригласить участника (по email, только владелец)
-// exports.inviteParticipant = async (req, res) => {
-//   const { email, role } = req.body;
-//   try {
-//     const collaboration = await Collaboration.findById(req.params.id);
-//     if (!collaboration) return res.status(404).json({ msg: 'Collaboration not found' });
-//     if (collaboration.ownerId.toString() !== req.user.id) {
-//       return res.status(403).json({ msg: 'Only owner can invite participants' });
-//     }
-//     const user = await User.findOne({ email });
-//     if (!user) return res.status(404).json({ msg: 'User not found' });
-//     if (collaboration.participants.some(p => p.userId.toString() === user.id)) {
-//       return res.status(400).json({ msg: 'User already participant' });
-//     }
-//     collaboration.participants.push({ userId: user.id, role, progress: 0 });
-//     collaboration.progress = calculateProgress(collaboration.participants);
-//     await collaboration.save();
-//     res.json(collaboration);
-//   } catch (err) {
-//     res.status(500).send('Server error');
-//   }
-// };
 
 exports.inviteParticipant = async (req, res) => {
   const { email, role } = req.body;
@@ -179,11 +135,11 @@ exports.inviteParticipant = async (req, res) => {
       .populate('ownerId', 'username email');
 
     if (!collaboration) {
-      return res.status(404).render('error', { message: 'Коллаборация не найдена' });
+      return res.status(404).render('error', { message: 'Collaboration not found' });
     }
 
     if (collaboration.ownerId._id.toString() !== req.user.id) {
-      return res.status(403).render('error', { message: 'Только владелец может приглашать участников' });
+      return res.status(403).render('error', { message: 'Only the owner can invite participants.' });
     }
 
     const user = await User.findOne({ email });
@@ -191,7 +147,7 @@ exports.inviteParticipant = async (req, res) => {
       return res.render('collaboration', {
         collaboration,
         user: req.user,
-        error: 'Пользователь с таким email не найден',
+        error: 'The user with this email was not found.',
       });
     }
 
@@ -199,7 +155,7 @@ exports.inviteParticipant = async (req, res) => {
       return res.render('collaboration', {
         collaboration,
         user: req.user,
-        error: 'Пользователь уже участвует в коллаборации',
+        error: 'The user is already participating in the collaboration',
       });
     }
 
@@ -210,31 +166,42 @@ exports.inviteParticipant = async (req, res) => {
     res.redirect(`/api/collaborations/${collaborationId}`);
   } catch (err) {
     console.error(err);
-    res.status(500).render('error', { message: 'Ошибка сервера' });
+    res.status(500).render('error', { message: 'Server error' });
   }
 };
-// Удалить участника (только владелец)
+
 exports.removeParticipant = async (req, res) => {
   const { userId } = req.params;
   try {
-    const collaboration = await Collaboration.findById(req.params.id);
-    if (!collaboration) return res.status(404).json({ msg: 'Collaboration not found' });
-    if (collaboration.ownerId.toString() !== req.user.id) {
-      return res.status(403).json({ msg: 'Only owner can remove participants' });
+    const collaboration = await Collaboration.findById(req.params.id)
+      .populate('ownerId', 'username')
+      .populate('participants.userId', 'username');
+
+    if (!collaboration) return res.status(404).send('Collaboration not found');
+    if (collaboration.ownerId._id.toString() !== req.user.id) {
+      return res.status(403).send('Only owner can remove participants');
     }
-    if (userId === collaboration.ownerId.toString()) {
-      return res.status(400).json({ msg: 'Owner cannot be removed' });
+    if (userId === collaboration.ownerId._id.toString()) {
+      return res.status(400).send('Owner cannot be removed');
     }
-    collaboration.participants = collaboration.participants.filter(p => p.userId.toString() !== userId);
+
+    collaboration.participants = collaboration.participants.filter(p => p.userId._id.toString() !== userId);
     collaboration.progress = calculateProgress(collaboration.participants);
     await collaboration.save();
-    res.json(collaboration);
+
+    const updatedCollab = await Collaboration.findById(req.params.id)
+      .populate('ownerId', 'username')
+      .populate('participants.userId', 'username');
+
+    res.render('collaboration', { collaboration: updatedCollab });
   } catch (err) {
+    console.error(err);
     res.status(500).send('Server error');
   }
 };
 
-// Покинуть коллаборацию (любой участник)
+
+
 exports.leaveCollaboration = async (req, res) => {
   try {
     const collaboration = await Collaboration.findById(req.params.id);
@@ -251,53 +218,28 @@ exports.leaveCollaboration = async (req, res) => {
   }
 };
 
-// Обновление прогресса участника
-// exports.updateProgress = async (req, res) => {
-//   const { progress } = req.body;
-//   try {
-//     const collaboration = await Collaboration.findById(req.params.id);
-//     if (!collaboration) return res.status(404).json({ msg: 'Collaboration not found' });
-//     const participant = collaboration.participants.find(p => p.userId.toString() === req.user.id);
-//     if (!participant) return res.status(403).json({ msg: 'You are not a participant' });
-//     participant.progress = progress;
-//     collaboration.progress = calculateProgress(collaboration.participants);
-//     await collaboration.save();
-//     res.json(collaboration);
-//   } catch (err) {
-//     res.status(500).send('Server error');
-//   }
-// };
+
 exports.updateProgress = async (req, res) => {
-  const { progress, userId } = req.body; // userId — чей прогресс обновляем
+  const { progress, userId } = req.body; 
   const collabId = req.params.id;
-  const currentUserId = req.user.id; // id текущего юзера
+  const currentUserId = req.user.id; 
 
   try {
     const collaboration = await Collaboration.findById(collabId).populate('ownerId').populate('participants.userId');
     if (!collaboration) return res.status(404).send('Collaboration not found');
 
-    // Проверяем, является ли текущий юзер владельцем
     const isOwner = collaboration.ownerId._id.toString() === currentUserId;
 
-    // Ищем участника, чей прогресс хотим обновить
     const participantToUpdate = collaboration.participants.find(p => p.userId._id.toString() === userId);
     if (!participantToUpdate) return res.status(404).send('Participant not found');
 
-    // Если не владелец, то может обновлять только свой прогресс
     if (!isOwner && userId !== currentUserId) {
       return res.status(403).send('You are not allowed to update this participant\'s progress');
     }
-
     participantToUpdate.progress = Number(progress);
-
-    // Пересчёт общего прогресса коллаборации
     collaboration.progress = calculateProgress(collaboration.participants);
-
     await collaboration.save();
-
-    // После обновления рендерим страницу с обновлёнными данными
     res.render('collaboration', { collaboration });
-
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error');

@@ -1,14 +1,19 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Мои коллаборации</title>
+  <title>My Collaborations</title>
   <link rel="stylesheet" href="/styles/dashboard.css">
 </head>
 <body>
+  <div style="position: fixed; top: 10px; right: 10px;">
+    <a href="/api/auth/register" class="icon-button" style="padding: 6px 12px; font-weight: 600;">
+      Log out
+    </a>
+  </div>
   <div class="container">
-    <h1>Добро пожаловать, <%= user.name %>!</h1>
-    <h2>Коллаборации, которыми вы владеете:</h2>
+    <h1>Welcome, <%= user.name %>!</h1>
+    <h2>Collaborations you own:</h2>
     <div class="dashboard-grid">
       <% ownedCollaborations.forEach(collab => { %>
         <div class="collab-card" onclick="window.location.href='/api/collaborations/<%= collab._id %>'">
@@ -17,16 +22,16 @@
         </div>
       <% }) %>
 
-      <!-- Кнопка Добавить коллаборацию только среди владельческих -->
+      <!-- Add Collaboration button only for owners -->
       <div class="add-card" onclick="window.location.href='/api/collaborations/new'">+</div>
     </div>
 
-    <h2>Коллаборации, где вы участник:</h2>
+    <h2>Collaborations where you are a participant:</h2>
     <div class="dashboard-grid">
       <% memberCollaborations.forEach(collab => { %>
         <div class="collab-card" onclick="window.location.href='/api/collaborations/<%= collab._id %>'">
           <div class="collab-title"><%= collab.title %></div>
-          <!-- Участники не могут удалять, поэтому кнопки нет -->
+          <!-- Participants cannot delete, so no button -->
         </div>
       <% }) %>
     </div>
@@ -34,7 +39,7 @@
 
   <script>
     function deleteCollaboration(id) {
-      if (confirm('Вы уверены, что хотите удалить эту коллаборацию?')) {
+      if (confirm('Are you sure you want to delete this collaboration?')) {
         fetch(`/api/collaborations/${id}`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' }
@@ -42,7 +47,7 @@
           if (res.ok) {
             location.reload();
           } else {
-            alert('Ошибка при удалении.');
+            alert('Error deleting collaboration.');
           }
         });
       }

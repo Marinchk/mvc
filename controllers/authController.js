@@ -3,14 +3,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-// Регистрация
+// Registration
 exports.register = async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
     let user = await User.findOne({ email });
     if (user) {
-      return res.render('register', { error: 'Пользователь уже существует' });
+      return res.render('register', { error: 'User already exists' });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -29,26 +29,26 @@ exports.register = async (req, res) => {
       sameSite: 'lax',
     });
 
-    res.redirect('/api/collaborations'); // после регистрации — на страницу с коллаборациями
+    res.redirect('/api/collaborations');
   } catch (err) {
     console.error(err);
-    res.status(500).render('register', { error: 'Ошибка сервера' });
+    res.status(500).render('register', { error: 'Server error' });
   }
 };
 
-// Вход
+// Login
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.render('login', { error: 'Неверный email или пароль' });
+      return res.render('login', { error: 'Invalid email or password' });
     }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
-      return res.render('login', { error: 'Неверный email или пароль' });
+      return res.render('login', { error: 'Invalid email or password' });
     }
 
     const payload = { user: { id: user.id } };
@@ -61,9 +61,9 @@ exports.login = async (req, res) => {
       sameSite: 'lax',
     });
 
-    res.redirect('/api/collaborations'); // после входа — на страницу с коллаборациями
+    res.redirect('/api/collaborations'); // after login — to the collaborations page
   } catch (err) {
     console.error(err);
-    res.status(500).render('login', { error: 'Ошибка сервера' });
+    res.status(500).render('login', { error: 'Server error' });
   }
 };
