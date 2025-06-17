@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= collaboration.title %> – Collaboration</title>
+  <link rel="stylesheet" href="/styles/collab.css" />
+  <style>
+    #descriptionTextarea, #saveButton {
+      display: none;
+      width: 100%;
+      box-sizing: border-box;
+      font-family: inherit;
+      font-size: 1em;
+    }
+    #descriptionTextarea {
+      height: 100px;
+      resize: vertical;
+      margin-top: 0.3em;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #saveButton {
+      margin-top: 0.3em;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    #saveButton:hover {
+      background-color: #0056b3;
+    }
+    .edit-icon {
+      cursor: pointer;
+      margin-left: 0.5em;
+      font-size: 1.2em;
+      user-select: none;
+      font-weight: 600;
+      vertical-align: middle;
+    }
+    /* Основной контейнер участников: две колонки */
+    .participants-grid {
+      display: grid;
+      grid-template-columns: 1fr 80px;
+      gap: 10px 20px;
+      align-items: center;
+      margin-bottom: 1em;
+    }
+    .participant-info-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+    .participant-info {
+      font-weight: bold;
+    }
+    .participant-role {
+      font-size: 0.9em;
+      color: #555;
+    }
+    .participant-progress {
+      font-weight: 600;
+      text-align: right;
+      color: #333;
+    }
+    .icon-button {
+      cursor: pointer;
+      font-size: 1.3em;
+      user-select: none;
+      border: none;
+      background: none;
+      padding: 0 5px;
+      color: #333;
+      transition: color 0.2s ease;
+    }
+    .icon-button:hover {
+      color: #007bff;
+    }
+    #addParticipantForm {
+      margin-top: 0.5em;
+      display: none;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    #addParticipantForm input[type="text"] {
+      padding: 6px 8px;
+      font-size: 1em;
+      width: 180px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    #addParticipantForm button {
+      font-size: 1.2em;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    #addParticipantForm button:hover {
+      background-color: #0056b3;
+    }
+    #addParticipantForm button#cancelAddParticipant {
+      background-color: #dc3545;
+      font-size: 1.3em;
+      padding: 6px 10px;
+    }
+    #addParticipantForm button#cancelAddParticipant:hover {
+      background-color: #a71d2a;
+    }
+    #progressText {
+      font-weight: bold;
+      display: inline-block;
+    }
+    #progressInput {
+      display: none;
+      width: 60px;
+      font-size: 1em;
+      padding: 4px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-left: 0.3em;
+    }
+    #progressSaveButton {
+      display: none;
+      cursor: pointer;
+      margin-left: 5px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    #progressSaveButton:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="collab-container">
+    <h1 class="collab-header"><%= collaboration.title %></h1>
+    <p class="collab-subtitle">
+      Прогресс коллаборации: 
+      <span id="progressText"><%= collaboration.progress %>%</span>
+    </p>
+
+    <div>
+      <p id="descriptionText" class="collab-text"><%= collaboration.description || 'Нет описания.' %></p>
+      <span id="editButton" class="edit-icon" title="Редактировать описание">✎</span>
+
+      <form id="descriptionForm" method="POST" action="/api/collaborations/<%= collaboration._id %>?_method=PUT" style="margin-top: 0.5em;">
+        <textarea name="description" id="descriptionTextarea" aria-label="Редактировать описание"><%= collaboration.description %></textarea>
+        <br />
+        <button type="submit" id="saveButton" aria-label="Сохранить описание">✓</button>
+      </form>
+    </div>
+
+    <h2 class="collab-section-title">Участники</h2>
+
+    <% if (collaboration.participants.length > 0) { %>
+    <div class="participants-grid">
+      <% collaboration.participants.forEach(participant => { %>
+        <div class="participant-info-wrapper">
+          <div class="participant-info"><%= participant.userId.username %></div>
+          <div class="participant-role"><%= participant.role %></div>
+        </div>
+        <div class="participant-progress"><%= participant.progress %>%</div>
+      <% }); %>
+    </div>
+    <% } else { %>
+    <p class="collab-text">Нет участников.</p>
+    <% } %>
+
+    <button id="addParticipantBtn" class="icon-button" title="Добавить участника">＋</button>
+
+    <form id="addParticipantForm" method="POST" action="/api/collaborations/<%= collaboration._id %>/invite">
+      <input type="text" name="email" placeholder="Email участника" required />
+      <input type="text" name="role" placeholder="Роль" required />
+      <button type="submit" class="icon-button" title="Добавить участника">✓</button>
+      <button type="button" id="cancelAddParticipant" class="icon-button" title="Отмена">✕</button>
+    </form>
+
+    <div class="collab-footer">
+      Владелец: <%= collaboration.ownerId.username || 'Неизвестно' %>
+    </div>
+  </div>
+
+  <script>
+    // Редактирование описания
+    const editBtn = document.getElementById('editButton');
+    const descText = document.getElementById('descriptionText');
+    const descTextarea = document.getElementById('descriptionTextarea');
+    const saveBtn = document.getElementById('saveButton');
+
+    editBtn.addEventListener('click', () => {
+      descText.style.display = 'none';
+      editBtn.style.display = 'none';
+      descTextarea.style.display = 'block';
+      saveBtn.style.display = 'inline-block';
+      descTextarea.focus();
+      descTextarea.selectionStart = descTextarea.selectionEnd = descTextarea.value.length;
+    });
+
+    // Редактирование прогресса
+    const editProgressBtn = document.getElementById('editProgressButton');
+    const progressText = document.getElementById('progressText');
+    const progressForm = document.getElementById('progressForm');
+    const progressInput = document.getElementById('progressInput');
+    const progressSaveBtn = document.getElementById('progressSaveButton');
+
+    editProgressBtn.addEventListener('click', () => {
+      progressText.style.display = 'none';
+      editProgressBtn.style.display = 'none';
+      progressInput.style.display = 'inline-block';
+      progressSaveBtn.style.display = 'inline-block';
+      progressInput.focus();
+      progressInput.selectionStart = progressInput.selectionEnd = progressInput.value.length;
+    });
+
+    progressForm.addEventListener('submit', e => {
+      const val = Number(progressInput.value);
+      if (isNaN(val) || val < 0 || val > 100) {
+        e.preventDefault();
+        alert('Пожалуйста, введите число от 0 до 100');
+        progressInput.focus();
+      }
+    });
+
+    // Добавление участника
+    const addBtn = document.getElementById('addParticipantBtn');
+    const addForm = document.getElementById('addParticipantForm');
+    const cancelAdd = document.getElementById('cancelAddParticipant');
+
+    addBtn.addEventListener('click', () => {
+      addBtn.style.display = 'none';
+      addForm.style.display = 'flex';
+      addForm.querySelector('input[name="email"]').focus();
+    });
+
+    cancelAdd.addEventListener('click', () => {
+      addForm.style.display = 'none';
+      addBtn.style.display = 'inline-block';
+      addForm.reset();
+    });
+  </script>
+</body>
+</html>

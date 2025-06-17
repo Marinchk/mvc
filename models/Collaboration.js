@@ -7,6 +7,7 @@ const ParticipantSchema = new mongoose.Schema({
 });
 
 const CollaborationSchema = new mongoose.Schema({
+  title: { type: String, required: true },
   description: { type: String, default: '' },
   participants: [ParticipantSchema],
   progress: { type: Number, default: 0 },

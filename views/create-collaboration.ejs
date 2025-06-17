@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Создать коллаборацию</title>
+  <link rel="stylesheet" href="/styles/create-collaboration.css" />
+</head>
+<body>
+  <div class="form-container">
+    <h1>Новая коллаборация</h1>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <p class="error"><%= error %></p>
+    <% } %>
+
+    <form action="/api/collaborations" method="POST">
+      <input type="text" name="title" placeholder="Название" required />
+      <textarea name="description" placeholder="Описание" rows="4"></textarea>
+      <button type="submit">Создать</button>
+    </form>
+
+    <a class="back" href="/api/collaborations">← Назад к списку</a>
+  </div>
+</body>
+</html>

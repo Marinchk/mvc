@@ -1,0 +1,116 @@
+Новый collab.css в стиле dashboard
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f9f8ff;
+  color: #333;
+}
+
+.collab-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 40px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(173, 149, 220, 0.2);
+  border: 1px solid #e0d6f6;
+}
+
+.collab-header {
+  text-align: center;
+  color: #5e4b8b;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.collab-subtitle {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #7e6cbf;
+  margin-bottom: 30px;
+  font-style: italic;
+}
+
+.collab-text {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.collab-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #d8c9f1;
+  border-radius: 12px;
+  background-color: #f3efff;
+  font-size: 1rem;
+  color: #4b3d7c;
+  margin-bottom: 25px;
+  transition: all 0.3s ease;
+}
+
+.collab-input:focus {
+  background-color: #ffffff;
+  border-color: #a187e6;
+  outline: none;
+}
+
+.collab-button {
+  display: inline-block;
+  background-color: #a187e6;
+  color: white;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(150, 120, 210, 0.3);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.collab-button:hover {
+  background-color: #8667d4;
+  box-shadow: 0 8px 18px rgba(130, 100, 200, 0.4);
+}
+
+.collab-footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 0.9rem;
+  color: #9a8cc3;
+  user-select: none;
+}
+
+    .participants-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px 24px;
+      margin-top: 20px;
+      align-items: center;
+    }
+
+    .participant-info {
+      font-size: 1.05rem;
+      color: var(--color-text-primary);
+    }
+
+    .participant-role {
+      font-style: italic;
+      color: var(--color-text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .participant-progress {
+      font-weight: bold;
+      color: var(--color-dark-purple);
+    }
+
+    .collab-section-title {
+      font-size: 1.8rem;
+      margin-top: 40px;
+      color: var(--color-dark-purple);
+      text-align: center;
+    }
