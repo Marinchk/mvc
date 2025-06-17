@@ -202,18 +202,38 @@ exports.removeParticipant = async (req, res) => {
 
 
 
+
+
 exports.leaveCollaboration = async (req, res) => {
+  const userId = req.user.id;
+  const collabId = req.params.id;
+
   try {
-    const collaboration = await Collaboration.findById(req.params.id);
-    if (!collaboration) return res.status(404).json({ msg: 'Collaboration not found' });
-    if (req.user.id === collaboration.ownerId.toString()) {
-      return res.status(400).json({ msg: 'Owner cannot leave collaboration' });
+    const collaboration = await Collaboration.findById(collabId);
+    if (!collaboration) {
+      return res.status(404).send('Collaboration not found');
     }
-    collaboration.participants = collaboration.participants.filter(p => p.userId.toString() !== req.user.id);
-    collaboration.progress = calculateProgress(collaboration.participants);
+
+
+    collaboration.participants = collaboration.participants.filter(
+      participant => participant.userId.toString() !== userId
+    );
     await collaboration.save();
-    res.json(collaboration);
-  } catch (err) {
+
+
+    const user = await User.findById(userId);
+    const ownedCollaborations = await Collaboration.find({ ownerId: userId });
+    const memberCollaborations = await Collaboration.find({
+      'participants.userId': userId
+    });
+
+    res.render('dashboard', {
+      user,
+      ownedCollaborations,
+      memberCollaborations
+    });
+  } catch (error) {
+    console.error(error);
     res.status(500).send('Server error');
   }
 };

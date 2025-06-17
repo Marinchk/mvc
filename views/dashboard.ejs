@@ -26,16 +26,16 @@
       <div class="add-card" onclick="window.location.href='/api/collaborations/new'">+</div>
     </div>
 
-    <h2>Collaborations where you are a participant:</h2>
-    <div class="dashboard-grid">
-      <% memberCollaborations.forEach(collab => { %>
-        <div class="collab-card" onclick="window.location.href='/api/collaborations/<%= collab._id %>'">
-          <div class="collab-title"><%= collab.title %></div>
-          <!-- Participants cannot delete, so no button -->
-        </div>
-      <% }) %>
+<h2>Collaborations where you are a participant:</h2>
+<div class="dashboard-grid">
+  <% memberCollaborations.forEach(collab => { %>
+    <div class="collab-card" onclick="window.location.href='/api/collaborations/<%= collab._id %>'">
+      <div class="collab-title"><%= collab.title %></div>
+      <!-- Кнопка выйти -->
+      <button class="leave-btn" title="Leave" onclick="event.stopPropagation(); leaveCollaboration('<%= collab._id %>')">🚪</button>
     </div>
-  </div>
+  <% }) %>
+</div>
 
   <script>
     function deleteCollaboration(id) {
@@ -52,6 +52,22 @@
         });
       }
     }
+
+  function leaveCollaboration(id) {
+    if (confirm('Are you sure you want to leave this collaboration?')) {
+      fetch(`/api/collaborations/${id}/leave`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      }).then(res => {
+        if (res.ok) {
+          location.reload(); 
+        } else {
+          alert('Error leaving collaboration.');
+        }
+      });
+    }
+  }
+
   </script>
 </body>
 </html>
