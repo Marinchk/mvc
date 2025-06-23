@@ -31,6 +31,10 @@ app.get('/dashboard', (req, res) => {
   res.send('<h1>Welcome to your dashboard!</h1>');
 });
 // Routes
+app.get('/', (req, res) => {
+  res.redirect('/api/auth/register'); 
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/collaborations', collaborationRoutes);
 console.log("MONGO_URI =", process.env.MONGO_URI || "mongodb://localhost:27017/artistcollab");

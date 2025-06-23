@@ -91,7 +91,7 @@ Ograniczony dostęp do edycji
 
 ## Install dependencies:
 Pobierz repozytorium z git
-
+Wymaga mongodb ( cmd mongodb -- version aby zrozumieć, czy masz)
 npm install
 
 npm run dev
